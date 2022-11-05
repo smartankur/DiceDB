@@ -114,6 +114,22 @@ func evalTTL(args []string, c io.ReadWriter) error {
 	return nil
 }
 
+func evalEXPIRE(args []string, c io.ReadWriter) error {
+
+	if len(args) < 2 {
+		return errors.New("ERR wrong number of arguments for 'expire' command")
+	}
+	var key string = args[0]
+	obj := Get(key)
+	if obj == nil {
+		c.Write([]byte(":0\r\n"))
+		return nil
+	}
+	evalSET(args, c)
+	c.Write([]byte(":1\r\n"))
+	return nil
+}
+
 func evalDELETE(args []string, c io.ReadWriter) error {
 
 	var deletedKeys int64 = 0
@@ -141,6 +157,8 @@ func EvalAndRespond(cmd *RedisCmd, c io.ReadWriter) error {
 		return evalTTL(cmd.Args, c)
 	case "DEL":
 		return evalDELETE(cmd.Args, c)
+	case "EXPIRE":
+		return evalEXPIRE(cmd.Args, c)
 	default:
 		return evalPING(cmd.Args, c)
 	}
