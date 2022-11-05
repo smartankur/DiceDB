@@ -114,30 +114,6 @@ func evalTTL(args []string, c io.ReadWriter) error {
 	return nil
 }
 
-func evalGET(args []string, c io.ReadWriter) error {
-
-	if len(args) != 1 {
-		return errors.New("ERR wrong number of arguments for 'get' command")
-	}
-
-	var key string = args[0]
-
-	obj := Get(key)
-
-	if obj == nil {
-		c.Write(RESP_NIL)
-		return nil
-	}
-
-	if obj.ExpiresAt != -1 && obj.ExpiresAt <= time.Now().UnixMilli() {
-		c.Write(RESP_NIL)
-		return nil
-	}
-
-	c.Write(Encode(obj.Value, false))
-	return nil
-}
-
 func evalDELETE(args []string, c io.ReadWriter) error {
 
 	var deletedKeys int64 = 0
