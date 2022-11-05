@@ -45,7 +45,7 @@ func evalSET(args []string, c io.ReadWriter) error {
 				return errors.New("(error) ERR syntax error")
 			}
 
-			exDurationSec, err := strconv.ParseInt(args[1], 10, 64)
+			exDurationSec, err := strconv.ParseInt(args[3], 10, 64)
 			if err != nil {
 				return errors.New("(error) ERR value is not an integer or out of range")
 			}
