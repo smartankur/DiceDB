@@ -99,7 +99,7 @@ func evalTTL(args []string, c io.ReadWriter) error {
 		return nil
 	}
 
-	if obj.ExpiresAt != -1 && obj.ExpiresAt <= time.Now().UnixMilli() {
+	if obj.ExpiresAt == -1 {
 		c.Write([]byte(":-1\r\n"))
 		return nil
 	}
