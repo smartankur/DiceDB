@@ -125,7 +125,13 @@ func evalEXPIRE(args []string, c io.ReadWriter) error {
 		c.Write([]byte(":0\r\n"))
 		return nil
 	}
-	evalSET(args, c)
+	var exDurationMs int64 = -1
+	exDurationSec, err := strconv.ParseInt(args[1], 10, 64)
+	if err != nil {
+		return errors.New("(error) ERR value is not an integer or out of range")
+	}
+	exDurationMs = exDurationSec * 1000
+	Put(key, NewObj(obj.Value, exDurationMs))
 	c.Write([]byte(":1\r\n"))
 	return nil
 }
