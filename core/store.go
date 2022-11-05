@@ -32,7 +32,7 @@ func Put(k string, obj *Obj) {
 func Get(k string) *Obj {
 	v := store[k]
 	if v != nil {
-		if v.ExpiresAt <= time.Now().UnixMilli() {
+		if v.ExpiresAt != -1 && v.ExpiresAt <= time.Now().UnixMilli() {
 			delete(store, k)
 			return nil
 		}
