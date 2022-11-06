@@ -86,7 +86,7 @@ func evalGET(args []string, c io.ReadWriter) error {
 
 func evalTTL(args []string, c io.ReadWriter) error {
 
-	if len(args) <= 1 {
+	if len(args) != 1 {
 		return errors.New("ERR wrong number of arguments for 'ttl' command")
 	}
 
