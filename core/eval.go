@@ -31,6 +31,11 @@ func evalPING(args []string) []byte {
 	return b
 }
 
+func evalBGREWRITEAOF(args []string) []byte {
+	DumpAllAOF()
+	return RESP_OK
+}
+
 func evalSET(args []string) []byte {
 
 	if len(args) <= 1 {
@@ -158,6 +163,8 @@ func EvalAndRespond(cmds RedisCmds, c io.ReadWriter) {
 			buf.Write(evalDELETE(cmd.Args))
 		case "EXPIRE":
 			buf.Write(evalEXPIRE(cmd.Args))
+		case "BGREWRITEAOF":
+			buf.Write(evalBGREWRITEAOF(cmd.Args))
 		default:
 			buf.Write(evalPING(cmd.Args))
 		}
