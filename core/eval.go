@@ -212,7 +212,7 @@ func evalINFO(args []string) []byte {
 	buf := bytes.NewBuffer(info)
 	buf.WriteString("# KeySpace \r\n")
 	for i := range KeySpaceStat {
-		buf.WriteString((fmt.Sprintf("db%d:keys=%d,epxires=0,avg_ttl=0\r\n", i, KeySpaceStat[i]["keys"])))
+		buf.WriteString(fmt.Sprintf("db%d:keys=%d,epxires=0,avg_ttl=0\r\n", i, KeySpaceStat[i]["keys"]))
 	}
 	return Encode(buf.String(), false)
 }
