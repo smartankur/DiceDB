@@ -142,7 +142,7 @@ func evalINCR(args []string) []byte {
 
 	var key string = args[0]
 	obj := Get(key)
-	if obj != nil {
+	if obj == nil {
 		obj = NewObj("0", -1, OBJ_TYPE_STRING, OBJ_TYPE_STRING)
 		Put(key, obj)
 	}
