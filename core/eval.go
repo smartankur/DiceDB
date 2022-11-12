@@ -3,6 +3,7 @@ package core
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"strconv"
@@ -197,9 +198,21 @@ func EvalAndRespond(cmds RedisCmds, c io.ReadWriter) {
 			buf.Write(evalBGREWRITEAOF(cmd.Args))
 		case "INCR":
 			buf.Write(evalINCR(cmd.Args))
+		case "INFO":
+			buf.Write(evalINFO(cmd.Args))
 		default:
 			buf.Write(evalPING(cmd.Args))
 		}
 	}
 	c.Write(buf.Bytes())
+}
+
+func evalINFO(args []string) []byte {
+	var info []byte
+	buf := bytes.NewBuffer(info)
+	buf.WriteString("# KeySpace \r\n")
+	for i := range KeySpaceStat {
+		buf.WriteString((fmt.Sprintf("db%d:keys=%d,epxires=0,avg_ttl=0\r\n", i, KeySpaceStat[i]["keys"])))
+	}
+	return Encode(buf.String(), false)
 }
