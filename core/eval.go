@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"io"
+	"log"
 	"strconv"
 	"time"
 )
@@ -158,6 +159,7 @@ func evalINCR(args []string) []byte {
 	i, _ := strconv.ParseInt(obj.Value.(string), 10, 64)
 	i++
 	obj.Value = strconv.FormatInt(i, 10)
+	log.Println("Incremented value   ", i)
 	return Encode(i, false)
 }
 
