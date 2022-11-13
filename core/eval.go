@@ -85,7 +85,7 @@ func evalGET(args []string) []byte {
 		return RESP_NIL
 	}
 
-	if obj.ExpiresAt != -1 && obj.ExpiresAt <= time.Now().UnixMilli() {
+	if hasExpired(obj) {
 		return RESP_NIL
 	}
 	return Encode(obj.Value, false)
@@ -105,15 +105,17 @@ func evalTTL(args []string) []byte {
 		return RESP_MINUS_2
 	}
 
-	if obj.ExpiresAt == -1 {
+	exp, isExpirySet := getExpiry(obj)
+	if !isExpirySet {
 		return RESP_MINUS_1
 	}
-	var timeLeftForExpiration int64 = obj.ExpiresAt - time.Now().UnixMilli()
 
-	if timeLeftForExpiration < 0 {
+	if uint64(time.Now().UnixMilli()) > exp {
 		return RESP_MINUS_2
 	}
-	return Encode(int64(timeLeftForExpiration/1000), false)
+
+	durationMs := exp - uint64(time.Now().UnixMilli())
+	return Encode(int64(durationMs/1000), false)
 }
 
 func evalEXPIRE(args []string) []byte {
@@ -121,19 +123,19 @@ func evalEXPIRE(args []string) []byte {
 	if len(args) < 2 {
 		return Encode(errors.New("ERR wrong number of arguments for 'expire' command"), false)
 	}
-	var key string = args[0]
-	obj := Get(key)
-	oType, oEnc := getType(obj.TypeEncoding), getEncoding(obj.TypeEncoding)
-	if obj == nil {
-		return RESP_ZERO
-	}
-	var exDurationMs int64 = -1
+
 	exDurationSec, err := strconv.ParseInt(args[1], 10, 64)
 	if err != nil {
 		return Encode(errors.New("(error) ERR value is not an integer or out of range"), false)
 	}
-	exDurationMs = exDurationSec * 1000
-	Put(key, NewObj(obj.Value, exDurationMs, oType, oEnc))
+
+	var key string = args[0]
+	obj := Get(key)
+	if obj == nil {
+		return RESP_ZERO
+	}
+
+	setExpiry(obj, exDurationSec*1000)
 	return RESP_ONE
 }
 

@@ -1,9 +1,9 @@
 package core
 
 type Obj struct {
-	TypeEncoding uint8
-	Value        interface{} // same as pointers in c++
-	ExpiresAt    int64
+	TypeEncoding   uint8
+	Value          interface{} // same as pointers in c++
+	LastAccessedAt uint32
 }
 
 var OBJ_TYPE_STRING uint8 = 0 << 4

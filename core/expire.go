@@ -2,7 +2,6 @@ package core
 
 import (
 	"log"
-	"time"
 )
 
 func expireSample() float32 {
@@ -10,13 +9,10 @@ func expireSample() float32 {
 	var expiredCount int = 0
 
 	for key, obj := range store {
-		if obj.ExpiresAt != -1 {
-			limit--
-
-			if obj.ExpiresAt <= time.Now().UnixMilli() {
-				delete(store, key)
-				expiredCount++
-			}
+		limit--
+		if hasExpired(obj) {
+			Delete(key)
+			expiredCount++
 		}
 
 		if limit == 0 {
