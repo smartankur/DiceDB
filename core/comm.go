@@ -31,7 +31,7 @@ func (c *Client) TxnExec() []byte {
 
 	buf := bytes.NewBuffer(out)
 
-	buf.WriteString(fmt.Sprint("|%d\r\n", len(c.cqueue)))
+	buf.WriteString(fmt.Sprint("*%d\r\n", len(c.cqueue)))
 	for _, _cmd := range c.cqueue {
 		buf.Write(execteCommand(_cmd, c))
 	}
