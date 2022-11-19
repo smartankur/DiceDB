@@ -23,6 +23,12 @@ const EngineStatus_WAITING int32 = 1 << 1
 
 var eStatus int32 = EngineStatus_WAITING
 
+var connectedClients map[int]*core.Client
+
+func init() {
+	connectedClients = make(map[int]*core.Client)
+}
+
 func WaitForSignal(wg *sync.WaitGroup, sigs chan os.Signal) {
 	wg.Done()
 	<-sigs
@@ -127,7 +133,7 @@ func RunAsyncTCPServer(wg *sync.WaitGroup) error {
 				}
 
 				// increase the number of concurrent clients count
-				con_clients++
+				connectedClients[fd] = core.NewClient(fd)
 				syscall.SetNonblock(serverFD, true)
 
 				// add this new TCP connection to be monitored
@@ -139,11 +145,14 @@ func RunAsyncTCPServer(wg *sync.WaitGroup) error {
 					log.Fatal(err)
 				}
 			} else {
-				comm := core.FDComm{Fd: int(events[i].Fd)}
+				comm := connectedClients[int(events[i].Fd)]
+				if comm == nil {
+					continue
+				}
 				cmds, err := readCommands(comm)
 				if err != nil {
 					syscall.Close(int(events[i].Fd))
-					con_clients -= 1
+					delete(connectedClients, int(events[i].Fd))
 					continue
 				}
 				respond(cmds, comm)
@@ -151,4 +160,5 @@ func RunAsyncTCPServer(wg *sync.WaitGroup) error {
 		}
 		atomic.StoreInt32(&eStatus, EngineStatus_WAITING)
 	}
+	return nil
 }
